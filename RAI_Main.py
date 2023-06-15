@@ -1,28 +1,108 @@
 import tkinter as tk
+import paramiko as par
+import subprocess
+import os
+
+from paramiko import SSHClient
 from tkinter import messagebox
+from tkinter import simpledialog
 
-def show_message():
-    if check_state.get() == 0:
-        print(textbox.get('1.0', tk.END))
-    else:
-        messagebox.showinfo(title='Message', message=textbox.get('1.0', tk.END))
+ssh = SSHClient()
+ssh.set_missing_host_key_policy(par.AutoAddPolicy())
 
-root = tk.Tk()
-root.title('RAI - Proof of Concept')
-root.iconbitmap("myIcon.ico")
 
-label = tk.Label(root, text='Your Message', font=('Arial', 18))
-label.pack(padx=10, pady=10)
+#Creates a Login popup
+class login:
 
-textbox = tk.Text(root, height=5, font=('Arial', 16))
-textbox.pack(padx=10, pady=10)
+    def __init__(self):
+        self.login = tk.Tk()
+        self.login.title("Login")
+        self.login.iconbitmap("myIcon.ico")
 
-check_state = tk.IntVar()
+        self.login_label = tk.Label(self.login, text="Login Information", font=('Arial', 18))
 
-checkbox = tk.Checkbutton(root, text='Show Message Box', font=('Arial', 16), variable=check_state)
-checkbox.pack(padx=10, pady=10)
+        self.hostname_label = tk.Label(self.login, text="Hostname: ", font=('Arial', 12))
+        self.hostname_box = tk.Entry(self.login, font=('Arial', 12))
 
-button = tk.Button(root, text='Show Message', font=('Arial', 18), command=show_message)
-button.pack(padx=10, pady=10)
+        self.username_label = tk.Label(self.login, text="Username: ", font=('Arial', 12))
+        self.username_box = tk.Entry(self.login, font=('Arial', 12))
 
-root.mainloop()
+        self.password_label = tk.Label(self.login, text="Password: ", font=('Arial', 12))
+        self.password_box = tk.Entry(self.login, font=('Arial', 12), show='*')
+
+        self.login_button = tk.Button(self.login, text='login', font=('Arial', 12), command=self.try_login)
+
+        self.login_label.grid(row=0, columnspan=2)
+
+        self.hostname_label.grid(row=1, column=0)
+        self.hostname_box.grid(row=1, column=1)
+        
+        self.username_label.grid(row=2, column=0)
+        self.username_box.grid(row=2, column=1)
+
+        self.password_label.grid(row=3, column=0)
+        self.password_box.grid(row=3, column=1)
+
+        self.login_button.grid(row=4, columnspan=2)
+
+        self.login.mainloop()
+
+    #Logs you into the server
+    def try_login(self):
+
+        ip = self.hostname_box.get()
+        try_ip = os.system('ping %s -n 1' % (ip,))
+        if try_ip == 0:
+            print("Pingable")
+            user = self.username_box.get()
+            secret = self.password_box.get()
+            ssh.connect(ip, username=user, password=secret)
+            ssh.exec_command('wall "Hello World"')
+            ssh.close()
+        else:
+            messagebox.showinfo(title = "Error", message = "Could not not reach host please make sure that the host is reachable or that the hostname is correct")
+        
+
+#Main GUI front page
+class MyGUI:
+
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("RAI - Proof of Concept")
+        self.root.iconbitmap("myIcon.ico")
+
+        self.label = tk.Label(self.root, text="Your Message", font=('Arial', 18))
+        self.label.pack(padx=10, pady=10)
+
+        self.textbox = tk.Text(self.root, height=5, font=('Arial', 16))
+        self.textbox.pack(padx=10, pady=10)
+
+        self.check_state = tk.IntVar()
+
+        self.checkbox = tk.Checkbutton(self.root, text='Show Message Box', font=('Arial', 16), variable=self.check_state)
+        self.checkbox.pack(padx=10, pady=10)
+
+        self.button = tk.Button(self.root, text='Show Message', font=('Arial', 18), command=self.show_message)
+        self.button.pack(padx=10, pady=10)
+
+        launch_chrome = tk.Button(self.root, text="Launch Chrome", font=("Arial", 18), command=self.chrome)
+        launch_chrome.pack(padx=10, pady=10)
+
+        launch_dawncraft = tk.Button(self.root, text="Launch DawnCraft", font=("Arial", 18), command=self.dawncraft)
+        launch_dawncraft.pack(padx=10, pady=10)
+
+        self.root.mainloop()
+
+    def show_message(self):
+        if self.check_state.get() == 0:
+            print(self.textbox.get("1.0", tk.END))
+        else:
+            messagebox.showinfo(title="Message", message=self.textbox.get("1.0", tk.END))
+
+    def chrome(self):
+        subprocess.Popen("C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe")
+
+    def dawncraft(self):
+        login()
+
+MyGUI()
