@@ -1,32 +1,28 @@
 import tkinter as tk
 from tkinter import messagebox
 
-class rai_main:
+def show_message():
+    if check_state.get() == 0:
+        print(textbox.get('1.0', tk.END))
+    else:
+        messagebox.showinfo(title='Message', message=textbox.get('1.0', tk.END))
 
-    def __init__(self):
-    
-        self.root = tk.Tk()
+root = tk.Tk()
+root.title('RAI - Proof of Concept')
+root.iconbitmap("myIcon.ico")
 
-        self.label = tk.Label(self.root, text="Your Message", font=('Arial', 18))
-        self.label.pack(padx=10, pady=10)
+label = tk.Label(root, text='Your Message', font=('Arial', 18))
+label.pack(padx=10, pady=10)
 
-        self.textbox = tk.Text(self.root, height=5, font=('Arial', 16))
-        self.textbox.pack(padx=10, pady=10)
+textbox = tk.Text(root, height=5, font=('Arial', 16))
+textbox.pack(padx=10, pady=10)
 
-        self.check_state = tk.IntVar()
+check_state = tk.IntVar()
 
-        self.checkbox = tk.Checkbutton(self.root, text='Show Message Box', font=('Arial', 16), variable=self.check_state)
-        self.checkbox.pack(padx=10, pady=10)
+checkbox = tk.Checkbutton(root, text='Show Message Box', font=('Arial', 16), variable=check_state)
+checkbox.pack(padx=10, pady=10)
 
-        self.button = tk.Button(self.root, text='Show Message', font=('Arial', 18), command=self.show_message)
-        self.button.pack(padx=10, pady=10)
+button = tk.Button(root, text='Show Message', font=('Arial', 18), command=show_message)
+button.pack(padx=10, pady=10)
 
-        self.root.mainloop()
-
-    def show_message(self):
-        if self.check_state.get() == 0:
-            print(self.textbox.get('1.0', tk.END))
-        else:
-            messagebox.showinfo(title='Message', message=self.textbox.get('1.0', tk.END))
-
-rai_main()
+root.mainloop()
