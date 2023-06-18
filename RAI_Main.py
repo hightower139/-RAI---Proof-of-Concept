@@ -2,9 +2,11 @@ import tkinter as tk
 import paramiko as par
 import subprocess
 import os
+import pyAesCrypt
 
 from paramiko import SSHClient
 from tkinter import messagebox
+from cryptography.fernet import Fernet
 
 ssh = SSHClient()
 ssh.set_missing_host_key_policy(par.AutoAddPolicy())
@@ -154,6 +156,7 @@ class profile_login():
         self.user = self.username_box.get()
         self.secret = self.password_box.get()
         self.profile_directory = "profiles\\" + self.user + ".txt"
+        self.profile_directory_encrypted = "profiles\\" + self.user + ".txt.aes"
         print(self.user)
         print(self.secret)
         
@@ -161,8 +164,11 @@ class profile_login():
             f.write(str(self.secret))
             f.close()
         
-        MyGUI()
+        pyAesCrypt.encryptFile(self.profile_directory, self.profile_directory_encrypted, self.secret)
+
+        os.remove(self.profile_directory)
         self.profile_login.destroy()
+        MyGUI()
 
     # Logs you into you're profile
     def try_login_profile(self):
@@ -170,6 +176,8 @@ class profile_login():
         self.secret = self.password_box.get()
         self.secret
         self.profile_directory = "profiles\\" + self.user + ".txt"
+        self.profile_directory_encrypted = "profiles\\" + self.user + ".txt.aes"
+        pyAesCrypt.decryptFile(self.profile_directory_encrypted, self.profile_directory, self.secret)
 
         if os.path.isfile(self.profile_directory):
             print("made it")
@@ -177,11 +185,12 @@ class profile_login():
                 first_line = f.readline().strip()
                 print(f"{first_line} == {self.secret}")
                 if first_line == self.secret:
-                    MyGUI()
                     self.profile_login.destroy()
+                    f.close()
+                    os.remove(self.profile_directory)
+                    MyGUI()
                 else:
                     messagebox.showinfo(title = "Can not Login", message = "Could not login check username and password")
-                f.close()
 
         else:
             messagebox.showinfo(title = "Can not Login", message = "Could not login check username and password")
