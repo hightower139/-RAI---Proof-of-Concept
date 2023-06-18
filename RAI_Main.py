@@ -6,7 +6,6 @@ import pyAesCrypt
 
 from paramiko import SSHClient
 from tkinter import messagebox
-from cryptography.fernet import Fernet
 
 ssh = SSHClient()
 ssh.set_missing_host_key_policy(par.AutoAddPolicy())
@@ -174,7 +173,6 @@ class profile_login():
     def try_login_profile(self):
         self.user = self.username_box.get()
         self.secret = self.password_box.get()
-        self.secret
         self.profile_directory = "profiles\\" + self.user + ".txt"
         self.profile_directory_encrypted = "profiles\\" + self.user + ".txt.aes"
         pyAesCrypt.decryptFile(self.profile_directory_encrypted, self.profile_directory, self.secret)
