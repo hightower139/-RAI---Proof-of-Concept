@@ -145,13 +145,15 @@ class profile_login():
 
         if len(self.directory) == 0:
             self.profile_create_button.grid(row=3, columnspan=2, sticky="ew")
+            self.profile_login.bind('<Return>', self.create_profile)
         else:
             self.profile_login_button.grid(row=3, column=0, sticky="ew")
             self.profile_create_button.grid(row=3, column=1, sticky="ew")
+            self.profile_login.bind('<Return>', self.try_login_profile)
 
         self.profile_login.mainloop()
 
-    def create_profile(self):
+    def create_profile(self, event=False):
         self.user = self.username_box.get()
         self.secret = self.password_box.get()
         self.profile_directory = "profiles\\" + self.user + ".txt"
@@ -170,28 +172,33 @@ class profile_login():
         MyGUI()
 
     # Logs you into you're profile
-    def try_login_profile(self):
+    def try_login_profile(self, event=False):
         self.user = self.username_box.get()
         self.secret = self.password_box.get()
         self.profile_directory = "profiles\\" + self.user + ".txt"
         self.profile_directory_encrypted = "profiles\\" + self.user + ".txt.aes"
-        pyAesCrypt.decryptFile(self.profile_directory_encrypted, self.profile_directory, self.secret)
 
-        if os.path.isfile(self.profile_directory):
-            print("made it")
-            with open(self.profile_directory, "r") as f:
-                first_line = f.readline().strip()
-                print(f"{first_line} == {self.secret}")
-                if first_line == self.secret:
-                    self.profile_login.destroy()
-                    f.close()
-                    os.remove(self.profile_directory)
-                    MyGUI()
-                else:
-                    messagebox.showinfo(title = "Can not Login", message = "Could not login check username and password")
+        try:
+            if os.path.isfile(self.profile_directory_encrypted):
+                pyAesCrypt.decryptFile(self.profile_directory_encrypted, self.profile_directory, self.secret)
+                print("made it")
+                with open(self.profile_directory, "r") as f:
+                    first_line = f.readline().strip()
+                    print(f"{first_line} == {self.secret}")
+                    if first_line == self.secret:
+                        self.profile_login.destroy()
+                        f.close()
+                        os.remove(self.profile_directory)
+                        MyGUI()
+                    else:
+                        messagebox.showinfo(title = "Can not Login", message = "Could not login check username and password")
 
-        else:
-            messagebox.showinfo(title = "Can not Login", message = "Could not login check username and password")
+            else:
+                raise ValueError
+
+        except ValueError:
+                messagebox.showinfo(title = "Can not Login", message = "Could not login check username and password")
+            
 
 #MyGUI()
 
