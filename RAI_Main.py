@@ -3,9 +3,13 @@ import paramiko as par
 import subprocess
 import os
 import pyAesCrypt
+from PIL import ImageTk, Image
 
 from paramiko import SSHClient
 from tkinter import messagebox
+from pathlib import Path
+
+my_dir = Path(__file__).parent
 
 ssh = SSHClient()
 ssh.set_missing_host_key_policy(par.AutoAddPolicy())
@@ -17,7 +21,7 @@ class login_server:
     def __init__(self):
         self.login_server = tk.Tk()
         self.login_server.title("Login")
-        self.login_server.iconbitmap("myIcon.ico")
+        self.login_server.iconbitmap(my_dir / "myIcon.ico")
 
         self.login_server_label = tk.Label(self.login_server, text=" Server Login Information", font=('Arial', 18))
 
@@ -75,7 +79,7 @@ class MyGUI:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("RAI - Proof of Concept")
-        self.root.iconbitmap("myIcon.ico")
+        self.root.iconbitmap(my_dir / "myIcon.ico")
         self.root.configure(bg="#404040")
 
         self.label = tk.Label(self.root, text="Your Message", font=('Arial', 18), bg='#404040', fg='#ffffff')
@@ -113,16 +117,98 @@ class MyGUI:
         self.root.destroy()
         login_server()
 
+class create_profile():
+        
+    def __init__(self):
+
+        self.directory = (my_dir / "profiles")
+        self.create_profile = tk.Tk()
+        self.create_profile.configure(background='#596658')
+        self.create_profile.title("Create Profile")
+        self.create_profile.iconbitmap(my_dir / "myIcon.ico")
+        self.create_profile.resizable(False, False)
+
+        self.new_picture = Image.open(my_dir / 'assets/pro_1.png').resize((400,600))
+        self.image = ImageTk.PhotoImage(self.new_picture)
+        self.image_label = tk.Label(self.create_profile, image=self.image, border=0)
+
+        self.new_profile_label = tk.Label(self.create_profile, text="RAI", font=('Arial', 40, 'bold'), background='#596658', foreground='#84eaef')
+        self.create_profile_label = tk.Label(self.create_profile, text="Create a New Profile", font=('Arial', 30), justify="left", background='#596658', foreground='#84eaef')
+
+        self.new_username_label = tk.Label(self.create_profile, text="New Username", font=('Arial', 20), justify="left", background='#596658', foreground='#84eaef')
+        self.new_username_box = tk.Entry(self.create_profile, font=('Arial', 20))
+
+        self.new_password_label = tk.Label(self.create_profile, text="New Password", font=('Arial', 20), justify="left", background='#596658', foreground='#84eaef')
+        self.new_password_box = tk.Entry(self.create_profile, font=('Arial', 20), show='*')
+
+        self.requirements = tk.Label(self.create_profile, text="Username must be 4 characters long but no more then 14\nPassword length must be 6 characters\nPassword must contain two special characters", font=('Arial', 12), justify="left", background='#596658', foreground='#84eaef')
+
+        self.create_profile_button = tk.Button(self.create_profile, text='Create Profile', font=('Arial', 30, 'bold'), command=self.try_create_profile, background='#84eaef', relief='flat', foreground='#596658')
+
+
+        self.image_label.grid(rowspan=8, column=0, sticky='nsew') 
+
+        self.new_profile_label.grid(row=0, column=2, padx=80, pady=40)
+        self.create_profile_label.grid(row=1, column=2, sticky="w", pady=20)
+        
+        self.new_username_label.grid(row=2, column=2, sticky="sw", pady=2)
+        self.new_username_box.grid(row=3, column=2, sticky="new", pady=2)
+
+        self.new_password_label.grid(row=4, column=2, sticky="sw", pady=2)
+        self.new_password_box.grid(row=5, column=2, sticky="new", pady=2)
+
+        self.requirements.grid(row=6, column=2, sticky="nw", pady=2)
+
+        self.create_profile_button.grid(row=7, column=2, sticky="ew", pady=20)
+
+        #Adding Column and row spacing
+        self.false_label = tk.Label(self.create_profile, background='#596658')
+        self.false_label.grid(row=1, column=1, padx=10)
+        
+        self.false_label = tk.Label(self.create_profile, background='#596658')
+        self.false_label.grid(row=1, column=3, padx=10)
+
+        self.create_profile.bind('<Return>', self.try_create_profile)
+
+        self.create_profile.mainloop()
+        
+    def try_create_profile(self, event=False):
+        special_characters = "!@#$%^&*()-+?_=,<>/"
+        self.user = self.new_username_box.get()
+        if len(self.user) > 14 or len(self.user) < 4 or any(c in special_characters for c in self.user):
+            messagebox.showinfo(title = "Username", message = "The username must be under 14 characters but no less then 4 and no special characters")
+            return
+        self.secret = self.new_password_box.get()
+        self.SpelChar = 0
+        self.ListSecret = list(self.secret)
+        if self.user == "" or self.secret == "":
+            messagebox.showinfo(title = "Profile", message = "Failed creating profile please check if the Username or Password is blank.")
+        elif len(self.secret) < 6:
+            messagebox.showinfo(title = "Password", message = "Password hase to be at least 6 characters long")
+        else:
+            self.profile_directory = str(self.directory) + "//" + self.user + ".txt"
+            self.profile_directory_encrypted = str(self.directory) + "//" + self.user + ".txt.aes"
+            print(self.user)
+            print(self.secret)
+            
+            with open(self.profile_directory, "w") as f:
+                f.write(str(self.secret))
+                f.close()
+            
+            pyAesCrypt.encryptFile(self.profile_directory, self.profile_directory_encrypted, self.secret)
+
+            os.remove(self.profile_directory)
+            self.create_profile.destroy()
+            profile_login()
+
 # This is the class to create a profile login screen
 class profile_login():
 
     def __init__(self):
 
-        self.directory = os.listdir("profiles")
-        
         self.profile_login = tk.Tk()
         self.profile_login.title("Login")
-        self.profile_login.iconbitmap("myIcon.ico")
+        self.profile_login.iconbitmap(my_dir / "myIcon.ico")
         self.profile_login.resizable(False, False)
         self.profile_login_label = tk.Label(self.profile_login, text="Profile Login Information", font=('Arial', 18))
 
@@ -133,7 +219,7 @@ class profile_login():
         self.password_box = tk.Entry(self.profile_login, font=('Arial', 12), show='*')
 
         self.profile_login_button = tk.Button(self.profile_login, text='login', font=('Arial', 12), command=self.try_login_profile)
-        self.profile_create_button = tk.Button(self.profile_login, text='Create Profile', font=('Arial', 12), command=self.create_profile)
+        self.profile_create_button = tk.Button(self.profile_login, text='Create Profile', font=('Arial', 12), command=self.open_create)
 
         self.profile_login_label.grid(row=0, columnspan=2)
         
@@ -143,40 +229,23 @@ class profile_login():
         self.password_label.grid(row=2, column=0)
         self.password_box.grid(row=2, column=1)
 
-        if len(self.directory) == 0:
-            self.profile_create_button.grid(row=3, columnspan=2, sticky="ew")
-            self.profile_login.bind('<Return>', self.create_profile)
-        else:
-            self.profile_login_button.grid(row=3, column=0, sticky="ew")
-            self.profile_create_button.grid(row=3, column=1, sticky="ew")
-            self.profile_login.bind('<Return>', self.try_login_profile)
+        self.profile_login_button.grid(row=3, column=0, sticky="ew")
+        self.profile_create_button.grid(row=3, column=1, sticky="ew")
+        self.profile_login.bind('<Return>', self.try_login_profile)
 
         self.profile_login.mainloop()
 
-    def create_profile(self, event=False):
-        self.user = self.username_box.get()
-        self.secret = self.password_box.get()
-        self.profile_directory = "profiles\\" + self.user + ".txt"
-        self.profile_directory_encrypted = "profiles\\" + self.user + ".txt.aes"
-        print(self.user)
-        print(self.secret)
-        
-        with open(self.profile_directory, "w") as f:
-            f.write(str(self.secret))
-            f.close()
-        
-        pyAesCrypt.encryptFile(self.profile_directory, self.profile_directory_encrypted, self.secret)
-
-        os.remove(self.profile_directory)
+    def open_create(self, event=False):
         self.profile_login.destroy()
-        MyGUI()
+        create_profile()
 
     # Logs you into you're profile
     def try_login_profile(self, event=False):
+        self.directory = (my_dir / "profiles")
         self.user = self.username_box.get()
         self.secret = self.password_box.get()
-        self.profile_directory = "profiles\\" + self.user + ".txt"
-        self.profile_directory_encrypted = "profiles\\" + self.user + ".txt.aes"
+        self.profile_directory = str(self.directory) + "//" + self.user + ".txt"
+        self.profile_directory_encrypted = str(self.directory) + "//" + self.user + ".txt.aes"
 
         try:
             if os.path.isfile(self.profile_directory_encrypted):
@@ -202,4 +271,7 @@ class profile_login():
 
 #MyGUI()
 
-profile_login()
+directory = (my_dir / "profiles")
+dir = os.listdir(directory)
+if len(dir) == 0:
+    create_profile()
