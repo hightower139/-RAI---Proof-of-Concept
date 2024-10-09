@@ -5,7 +5,7 @@ paramiko
 
 
 
-This is a project to get my familiar with GUI's, I am not a advanced level user of python or of GUI's or designs, but I am trying to work on 
+This is a project to get me familiar with GUI's, I am not a advanced level user of python or of GUI's or designs, but I am trying to work on 
 this to further my skills with python and GUI's.
 
 This is more for personal use but anyone is welcome to try and help out or put input in.
