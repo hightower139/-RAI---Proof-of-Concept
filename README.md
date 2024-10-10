@@ -2,7 +2,8 @@
 
 Required modules:
 paramiko
-
+pillow
+pyAesCrypt
 
 
 This is a project to get me familiar with GUI's, I am not a advanced level user of python or of GUI's or designs, but I am trying to work on 
