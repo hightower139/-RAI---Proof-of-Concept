@@ -9,7 +9,6 @@ from paramiko import SSHClient
 from tkinter import messagebox
 from pathlib import Path
 
-my_dir = Path(__file__).parent
 
 ssh = SSHClient()
 ssh.set_missing_host_key_policy(par.AutoAddPolicy())
@@ -21,7 +20,12 @@ class login_server:
     def __init__(self):
         self.login_server = tk.Tk()
         self.login_server.title("Login")
-        self.login_server.iconbitmap(my_dir / "myIcon.ico")
+        if "nt" == os.name:
+            self.login_server.wm_iconbitmap(bitmap = my_dir / "assets/myIcon.ico")
+        else:
+            self.image = Image.open(my_dir / "assets/myIcon.png")
+            self.image = ImageTk.PhotoImage(self.image)
+            self.login_server.wm_iconphoto(True, self.image)
 
         self.login_server_label = tk.Label(self.login_server, text=" Server Login Information", font=('Arial', 18))
 
@@ -79,7 +83,12 @@ class MyGUI:
     def __init__(self):
         self.root = tk.Tk()
         self.root.title("RAI - Proof of Concept")
-        self.root.iconbitmap(my_dir / "myIcon.ico")
+        if "nt" == os.name:
+            self.root.wm_iconbitmap(bitmap = my_dir / "assets/myIcon.ico")
+        else:
+            self.image = Image.open(my_dir / "assets/myIcon.png")
+            self.image = ImageTk.PhotoImage(self.image)
+            self.root.wm_iconphoto(True, self.image)
         self.root.configure(bg="#404040")
 
         self.label = tk.Label(self.root, text="Your Message", font=('Arial', 18), bg='#404040', fg='#ffffff')
@@ -125,7 +134,12 @@ class create_profile():
         self.create_profile = tk.Tk()
         self.create_profile.configure(background='#596658')
         self.create_profile.title("Create Profile")
-        self.create_profile.iconbitmap(my_dir / "myIcon.ico")
+        if "nt" == os.name:
+            self.create_profile.wm_iconbitmap(bitmap = my_dir / "assets/myIcon.ico")
+        else:
+            self.image = Image.open(my_dir / "assets/myIcon.png")
+            self.image = ImageTk.PhotoImage(self.image)
+            self.create_profile.wm_iconphoto(True, self.image)
         self.create_profile.resizable(False, False)
 
         self.new_picture = Image.open(my_dir / 'assets/pro_1.png').resize((400,600))
@@ -173,18 +187,21 @@ class create_profile():
         self.create_profile.mainloop()
         
     def try_create_profile(self, event=False):
-        special_characters = "!@#$%^&*()-+?_=,<>/"
+        self.special_characters = "!@#$%^&*()-+?_=,<>/"
         self.user = self.new_username_box.get()
-        if len(self.user) > 14 or len(self.user) < 4 or any(c in special_characters for c in self.user):
+        if len(self.user) > 14 or len(self.user) < 4 or any(c in self.special_characters for c in self.user):
             messagebox.showinfo(title = "Username", message = "The username must be under 14 characters but no less then 4 and no special characters")
             return
         self.secret = self.new_password_box.get()
-        self.SpelChar = 0
-        self.ListSecret = list(self.secret)
+        self.spel_char = 0
+        self.list_secret = list(self.secret)
+        if any(c in self.list_secret for c in self.special_characters):
+            self.spel_char =+ 1
+        print(self.spel_char)
         if self.user == "" or self.secret == "":
             messagebox.showinfo(title = "Profile", message = "Failed creating profile please check if the Username or Password is blank.")
-        elif len(self.secret) < 6:
-            messagebox.showinfo(title = "Password", message = "Password hase to be at least 6 characters long")
+        elif len(self.secret) < 6 or self.spel_char < 2:
+            messagebox.showinfo(title = "Password", message = "Password hase to be at least 6 characters long and contain 2 special characters")
         else:
             self.profile_directory = str(self.directory) + "//" + self.user + ".txt"
             self.profile_directory_encrypted = str(self.directory) + "//" + self.user + ".txt.aes"
@@ -208,7 +225,12 @@ class profile_login():
 
         self.profile_login = tk.Tk()
         self.profile_login.title("Login")
-        self.profile_login.iconbitmap(my_dir / "myIcon.ico")
+        if "nt" == os.name:
+            self.profile_login.wm_iconbitmap(bitmap = my_dir / "assets/myIcon.ico")
+        else:
+            self.image = Image.open(my_dir / "assets/myIcon.png")
+            self.image = ImageTk.PhotoImage(self.image)
+            self.profile_login.wm_iconphoto(True, self.image)
         self.profile_login.resizable(False, False)
         self.profile_login_label = tk.Label(self.profile_login, text="Profile Login Information", font=('Arial', 18))
 
@@ -270,8 +292,10 @@ class profile_login():
             
 
 #MyGUI()
-
+my_dir = Path(__file__).parent
 directory = (my_dir / "profiles")
 dir = os.listdir(directory)
 if len(dir) == 0:
     create_profile()
+else:
+    profile_login()
