@@ -1,8 +1,8 @@
 # -RAI---Proof-of-Concept
 
 Required modules:
-paramiko
-pillow
+paramiko,
+pillow,
 pyAesCrypt
 
 
