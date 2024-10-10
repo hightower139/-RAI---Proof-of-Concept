@@ -186,6 +186,8 @@ class create_profile():
 
         self.create_profile.mainloop()
         
+        self.close()
+
     def try_create_profile(self, event=False):
         self.special_characters = "!@#$%^&*()-+?_=,<>/"
         self.user = self.new_username_box.get()
@@ -195,18 +197,18 @@ class create_profile():
         self.secret = self.new_password_box.get()
         self.spel_char = 0
         self.list_secret = list(self.secret)
-        if any(c in self.list_secret for c in self.special_characters):
-            self.spel_char =+ 1
-        print(self.spel_char)
+
+        for c in  self.list_secret:
+            if c in self.special_characters:
+                self.spel_char += 1
+
         if self.user == "" or self.secret == "":
             messagebox.showinfo(title = "Profile", message = "Failed creating profile please check if the Username or Password is blank.")
         elif len(self.secret) < 6 or self.spel_char < 2:
-            messagebox.showinfo(title = "Password", message = "Password hase to be at least 6 characters long and contain 2 special characters")
+            messagebox.showinfo(title = "Password", message = "Passwords must have\n6 characters\n2 special characters")
         else:
             self.profile_directory = str(self.directory) + "//" + self.user + ".txt"
             self.profile_directory_encrypted = str(self.directory) + "//" + self.user + ".txt.aes"
-            print(self.user)
-            print(self.secret)
             
             with open(self.profile_directory, "w") as f:
                 f.write(str(self.secret))
@@ -218,6 +220,11 @@ class create_profile():
             self.create_profile.destroy()
             profile_login()
 
+    def close(self):
+        print(len(os.listdir(directory)))
+        if len(os.listdir(directory)) > 0:
+            profile_login()
+
 # This is the class to create a profile login screen
 class profile_login():
 
@@ -225,6 +232,7 @@ class profile_login():
 
         self.profile_login = tk.Tk()
         self.profile_login.title("Login")
+        self.profile_login.configure(background='#596658')
         if "nt" == os.name:
             self.profile_login.wm_iconbitmap(bitmap = my_dir / "assets/myIcon.ico")
         else:
@@ -232,27 +240,44 @@ class profile_login():
             self.image = ImageTk.PhotoImage(self.image)
             self.profile_login.wm_iconphoto(True, self.image)
         self.profile_login.resizable(False, False)
-        self.profile_login_label = tk.Label(self.profile_login, text="Profile Login Information", font=('Arial', 18))
 
-        self.username_label = tk.Label(self.profile_login, text="Username: ", font=('Arial', 12))
-        self.username_box = tk.Entry(self.profile_login, font=('Arial', 12))
+        self.new_picture = Image.open(my_dir / 'assets/pro_1.png').resize((400,600))
+        self.image = ImageTk.PhotoImage(self.new_picture)
+        self.image_label = tk.Label(self.profile_login, image=self.image, border=0)
 
-        self.password_label = tk.Label(self.profile_login, text="Password: ", font=('Arial', 12))
-        self.password_box = tk.Entry(self.profile_login, font=('Arial', 12), show='*')
+        self.profile_login_label = tk.Label(self.profile_login, text="Login", font=('Arial', 40, 'bold'), background='#596658', foreground='#84eaef')
+        self.profile_info_label = tk.Label(self.profile_login, text="Login Information", font=('Arial', 30), justify="left", background='#596658', foreground='#84eaef')
 
-        self.profile_login_button = tk.Button(self.profile_login, text='login', font=('Arial', 12), command=self.try_login_profile)
-        self.profile_create_button = tk.Button(self.profile_login, text='Create Profile', font=('Arial', 12), command=self.open_create)
+        self.username_label = tk.Label(self.profile_login, text="Username: ", font=('Arial', 20), justify="left", background='#596658', foreground='#84eaef')
+        self.username_box = tk.Entry(self.profile_login, font=('Arial', 20))
 
-        self.profile_login_label.grid(row=0, columnspan=2)
+        self.password_label = tk.Label(self.profile_login, text="Password: ", font=('Arial', 20), justify="left", background='#596658', foreground='#84eaef')
+        self.password_box = tk.Entry(self.profile_login, font=('Arial', 20), show='*')
+
+        self.profile_create_button = tk.Button(self.profile_login, text="Create Profile", font=('Arial', 26, 'bold'), command=self.open_create, border=0, background='#84eaef', relief='flat', foreground='#596658')
+        self.profile_login_button = tk.Button(self.profile_login, text="Login", font=('Arial', 30, 'bold'), command=self.try_login_profile, border=0, background='#84eaef', relief='flat', foreground='#596658')
+
+        self.image_label.grid(rowspan=8, column=0, sticky='nsew') 
+
+        self.profile_login_label.grid(row=0, column=2, padx=80, pady=40)
+        self.profile_info_label.grid(row=1, column=2, sticky="w", pady=20)
         
-        self.username_label.grid(row=1, column=0)
-        self.username_box.grid(row=1, column=1)
+        self.username_label.grid(row=2, column=2, sticky="sw", pady=2)
+        self.username_box.grid(row=3, column=2, sticky="new", pady=2)
 
-        self.password_label.grid(row=2, column=0)
-        self.password_box.grid(row=2, column=1)
+        self.password_label.grid(row=4, column=2, sticky="sw", pady=2)
+        self.password_box.grid(row=5, column=2, sticky="new", pady=2)
 
-        self.profile_login_button.grid(row=3, column=0, sticky="ew")
-        self.profile_create_button.grid(row=3, column=1, sticky="ew")
+        self.profile_create_button.grid(row=6, column=2, sticky="sew", pady=8)
+        self.profile_login_button.grid(row=7, column=2, sticky="new", pady=14)
+
+        #Adding Column and row spacing
+        self.false_label = tk.Label(self.profile_login, background='#596658')
+        self.false_label.grid(row=1, column=1, padx=10)
+        
+        self.false_label = tk.Label(self.profile_login, background='#596658')
+        self.false_label.grid(row=1, column=3, padx=10)
+
         self.profile_login.bind('<Return>', self.try_login_profile)
 
         self.profile_login.mainloop()
