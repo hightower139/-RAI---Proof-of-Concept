@@ -12,6 +12,9 @@ from pathlib import Path
 
 ssh = SSHClient()
 ssh.set_missing_host_key_policy(par.AutoAddPolicy())
+my_dir = Path(__file__).parent
+directory = (my_dir / "profiles")
+dir = os.listdir(directory)
 
 
 #Creates a Login popup
@@ -74,7 +77,6 @@ class login_server:
     
     def close(self):
         MyGUI()
-        self.login_server.destroy()
         
 
 #Main GUI front page
@@ -126,6 +128,8 @@ class MyGUI:
         self.root.destroy()
         login_server()
 
+
+#GUI to create a Profile
 class create_profile():
         
     def __init__(self):
@@ -185,8 +189,10 @@ class create_profile():
         self.create_profile.bind('<Return>', self.try_create_profile)
 
         self.create_profile.mainloop()
-        
-        self.close()
+
+        if len(os.listdir(directory)) > 0:
+            print("here")
+            profile_login()
 
     def try_create_profile(self, event=False):
         self.special_characters = "!@#$%^&*()-+?_=,<>/"
@@ -218,12 +224,7 @@ class create_profile():
 
             os.remove(self.profile_directory)
             self.create_profile.destroy()
-            profile_login()
 
-    def close(self):
-        print(len(os.listdir(directory)))
-        if len(os.listdir(directory)) > 0:
-            profile_login()
 
 # This is the class to create a profile login screen
 class profile_login():
@@ -271,6 +272,7 @@ class profile_login():
         self.profile_create_button.grid(row=6, column=2, sticky="sew", pady=8)
         self.profile_login_button.grid(row=7, column=2, sticky="new", pady=14)
 
+
         #Adding Column and row spacing
         self.false_label = tk.Label(self.profile_login, background='#596658')
         self.false_label.grid(row=1, column=1, padx=10)
@@ -285,6 +287,7 @@ class profile_login():
     def open_create(self, event=False):
         self.profile_login.destroy()
         create_profile()
+
 
     # Logs you into you're profile
     def try_login_profile(self, event=False):
@@ -316,11 +319,8 @@ class profile_login():
                 messagebox.showinfo(title = "Can not Login", message = "Could not login check username and password")
             
 
-#MyGUI()
-my_dir = Path(__file__).parent
-directory = (my_dir / "profiles")
-dir = os.listdir(directory)
-if len(dir) == 0:
-    create_profile()
-else:
-    profile_login()
+if __name__ == "__main__":
+    if len(dir) == 0:
+        create_profile()
+    else:
+        profile_login()
