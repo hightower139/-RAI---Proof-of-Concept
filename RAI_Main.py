@@ -60,6 +60,7 @@ class login_server:
 
         self.close()
 
+
     #Logs you into the server
     def try_login(self):
         ip = self.hostname_box.get()
@@ -94,24 +95,26 @@ class MyGUI:
         self.root.configure(bg="#404040")
 
         self.label = tk.Label(self.root, text="Your Message", font=('Arial', 18), bg='#404040', fg='#ffffff')
-        self.label.pack(padx=10, pady=10)
 
         self.textbox = tk.Text(self.root, height=5, font=('Arial', 16), bg='#404040', fg='#ffffff')
-        self.textbox.pack(padx=10, pady=10)
 
         self.check_state = tk.IntVar()
 
         self.checkbox = tk.Checkbutton(self.root, text='Show Message Box', font=('Arial', 16), bg='#404040', fg='#ffffff',  variable=self.check_state)
-        self.checkbox.pack(padx=10, pady=10)
 
-        self.button = tk.Button(self.root, text='Show Message', font=('Arial', 18), bg='#404040', fg='#ffffff', command=self.show_message)
-        self.button.pack(padx=10, pady=10)
+        self.button = tk.Button(self.root, text='Show Message', font=('Arial', 18), bg='#404040', fg='#ffffff', command=self.show_message, height=10, width=20)
+        self.launch_chrome = tk.Button(self.root, text="Launch Chrome", font=("Arial", 18), bg='#404040', fg='#ffffff', command=self.chrome, height=10, width=20)
+        self.launch_dawncraft = tk.Button(self.root, text="Launch DawnCraft", font=("Arial", 18), bg='#404040', fg='#ffffff', command=self.dawncraft, height=10, width=20)
 
-        launch_chrome = tk.Button(self.root, text="Launch Chrome", font=("Arial", 18), bg='#404040', fg='#ffffff', command=self.chrome)
-        launch_chrome.pack(padx=10, pady=10)
+        self.label.grid(row=0)
 
-        launch_dawncraft = tk.Button(self.root, text="Launch DawnCraft", font=("Arial", 18), bg='#404040', fg='#ffffff', command=self.dawncraft)
-        launch_dawncraft.pack(padx=10, pady=10)
+        self.textbox.grid(row=1)
+
+        self.checkbox.grid(row=2)
+
+        self.button.grid(row=3, column=0)
+        self.launch_chrome.grid(row=3, column=1)
+        self.launch_dawncraft.grid(row=4, column=0)
 
         self.root.mainloop()
 
@@ -178,6 +181,7 @@ class create_profile():
         self.requirements.grid(row=6, column=2, sticky="nw", pady=2)
 
         self.create_profile_button.grid(row=7, column=2, sticky="ew", pady=20)
+        
 
         #Adding Column and row spacing
         self.false_label = tk.Label(self.create_profile, background='#596658')
